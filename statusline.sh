@@ -81,6 +81,26 @@ if command -v funes >/dev/null 2>&1; then
   printf ']\033[0m'
 fi
 
+# context-mode badge: [CTXM] when the plugin is enabled, [CTXM:N%] once this session kept bytes out of context.
+# N = bytes_avoided / (bytes_avoided + bytes_returned) over this session's events in the plugin's session DBs (~30ms).
+CFG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+if grep -q '"context-mode@context-mode": *true' "$CFG/settings.json" 2>/dev/null; then
+  CTXPCT=$(python3 - "$CFG/context-mode/sessions" "$SID" 2>/dev/null <<'EOF'
+import glob, os, sqlite3, sys
+avoided = returned = 0
+for f in glob.glob(os.path.join(sys.argv[1], "*.db")):
+    try:
+        c = sqlite3.connect(f"file:{f}?mode=ro", uri=True, timeout=0.2)
+        a, r = c.execute("select coalesce(sum(bytes_avoided),0), coalesce(sum(bytes_returned),0) from session_events where session_id=?", (sys.argv[2],)).fetchone()
+        avoided += a; returned += r
+    except Exception:
+        pass
+print(round(avoided * 100 / (avoided + returned)) if avoided else "")
+EOF
+)
+  printf ' \033[38;5;180m[CTXM%s]\033[0m' "${CTXPCT:+:$CTXPCT%}"
+fi
+
 # Plugin badges from previous status line script, if still present.
 BADGES_SCRIPT="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/caveman-statusline.sh"
 if [ -f "$BADGES_SCRIPT" ]; then
