@@ -71,13 +71,15 @@ if command -v funes >/dev/null 2>&1; then
   k() { local n=$1; [ "$n" -ge 1000 ] && echo "$(( (n + 500) / 1000 ))k" || echo "$n"; }
   FCHUNKS=$(sed -n 's/^chunks: \([0-9]*\).*/\1/p' "$FC" 2>/dev/null)
   FQUEUE=$(sed -n 's/^\([0-9]*\) chunks awaiting embedding.*/\1/p' "$FC" 2>/dev/null)
-  printf ' \033[35m[funes ◉'
-  [ -n "$FCHUNKS" ] && printf ' %s' "$(k "$FCHUNKS")"
-  [ -n "$FQUEUE" ] && [ "$FQUEUE" -gt 0 ] && printf ' ⧗ %s' "$(k "$FQUEUE")"
-  pgrep -f '^([^ ]*/)?funes index' >/dev/null 2>&1 && printf ' ⟳ '
+  # FG=1 while the last thing printed is a wide-ish glyph; it then gets a space before ']'.
+  printf ' \033[35m[funes ◉'; FG=1
+  [ -n "$FCHUNKS" ] && printf ' %s' "$(k "$FCHUNKS")" && FG=0
+  [ -n "$FQUEUE" ] && [ "$FQUEUE" -gt 0 ] && printf ' ⧗ %s' "$(k "$FQUEUE")" && FG=0
+  pgrep -f '^([^ ]*/)?funes index' >/dev/null 2>&1 && printf ' ⟳' && FG=1
   if [ -n "$SID" ] && [ "$SID" != "-" ] && [ -f "/tmp/claude-funes-used/$SID" ]; then
-    printf ' ×%s' "$(cat "/tmp/claude-funes-used/$SID")"
+    printf ' ×%s' "$(cat "/tmp/claude-funes-used/$SID")"; FG=0
   fi
+  [ "$FG" = 1 ] && printf ' '
   printf ']\033[0m'
 fi
 
