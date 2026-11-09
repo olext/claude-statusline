@@ -10,7 +10,7 @@ A compact status line for [Claude Code](https://claude.com/claude-code):
 - 5-hour and 7-day rate-limit usage bars (shown first so narrow terminals keep them)
 - 60-char context-window bar with percent and used/total tokens
 - Bars colored green (<60%), yellow (<85%), red (≥85%)
-- Optional badges: flowchart MCP used this session, funes memory index status, [context-mode](https://github.com/mksglu/context-mode) savings, and any extra badges from `~/.claude/hooks/caveman-statusline.sh`
+- Optional badges: flowchart MCP used this session, funes memory index status, [context-mode](https://github.com/mksglu/context-mode) savings, [i-have-adhd](https://github.com/ayghri/i-have-adhd) always-on mode, [superpowers](https://github.com/obra/superpowers) plugin, and any extra badges from `~/.claude/hooks/caveman-statusline.sh`
 
 Requires `bash` and `python3`.
 
@@ -48,6 +48,8 @@ The flowchart and funes badges rely on PostToolUse hooks that flag MCP usage per
 ```
 
 The context-mode badge needs no hook. It shows `[CTXM]` when the `context-mode@context-mode` plugin is enabled in `~/.claude/settings.json`, and `[CTXM:N%]` once the current session has kept output out of context. N is `bytes_avoided / (bytes_avoided + bytes_returned)` summed over this session's events in `~/.claude/context-mode/sessions/*.db`.
+
+The `[ADHD]` badge shows when `~/.claude/.i-have-adhd-always` exists (the plugin's always-on marker). The `[SP]` badge shows when any `superpowers@<marketplace>` plugin is enabled in `~/.claude/settings.json`; superpowers has no runtime flag, so enabled means active.
 
 Badges stay hidden when the related tool or hook is absent.
 

@@ -110,5 +110,16 @@ if [ -f "$BADGES_SCRIPT" ]; then
   [ -n "$BADGES" ] && printf ' %s' "$BADGES"
 fi
 
+# i-have-adhd badge: marker file = always-on mode. Symlink-refused like above.
+ADHD_FLAG="$CFG/.i-have-adhd-always"
+if [ -f "$ADHD_FLAG" ] && [ ! -L "$ADHD_FLAG" ]; then
+  printf ' \033[38;5;75m[ADHD]\033[0m'
+fi
+
+# superpowers badge: plugin has no flag file — active whenever enabled in settings.
+if grep -q '"superpowers@[^"]*"[[:space:]]*:[[:space:]]*true' "$CFG/settings.json" 2>/dev/null; then
+  printf ' \033[38;5;114m[SP]\033[0m'
+fi
+
 echo
 exit 0
